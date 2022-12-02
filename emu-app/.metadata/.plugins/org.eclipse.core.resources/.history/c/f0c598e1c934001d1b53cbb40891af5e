@@ -1,0 +1,35 @@
+/*
+ * outsomething.h
+ *
+ *  Created on: 2021-10-22
+ *      Author: root
+ */
+
+#ifndef OUTSOMETHING_H_
+#define OUTSOMETHING_H_
+#ifdef __cplusplus
+
+extern "C"{
+
+#endif
+
+#include "share_type.h"
+typedef struct
+{
+
+	char  server_ip[4];
+	u16 server_port;
+
+}NetPara;
+typedef int			(*input_data2)(u8 gunid,u8 type,void* pdata);
+extern input_data2  _callbak_ui_fun;
+void resetpara(u8 type,void *para);
+
+#ifdef __cplusplus
+}
+#endif
+
+
+
+
+#endif /* OUTSOMETHING_H_ */

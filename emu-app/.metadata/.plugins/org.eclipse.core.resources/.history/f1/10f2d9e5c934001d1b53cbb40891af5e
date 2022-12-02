@@ -1,0 +1,386 @@
+/*************************************************************************
+ > File Name: database.h
+ > Author: LiuTianpeng
+ > Mail: ltpforever@163.com 
+ > Created Time: 2017年07月24日 星期一 10时08分26秒
+ ************************************************************************/
+
+#ifndef _DATABASE_H_
+#define _DATABASE_H_
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+#define DB_DIR_PATH "/usr/local/sanway/dbTest/"
+#define TRAN_RECORD_PATH "/usr/local/sanway/dbTest/tcuaccount.db"
+#define ERROR_RECORD_PATH "/usr/local/sanway/dbTest/tcuerror.db"
+#define PRICE_MODE_PATH "/usr/local/sanway/dbTest/tcuprice.db"
+#define CONFIG_FILE_PATH "/usr/local/sanway/dbTest/tcuconfig.db"
+#define CARD_PATH  "/usr/local/sanway/dbTest/tcucard.db"
+#define BLACKLIST_CARD_PATH  "/usr/local/sanway/dbTest/tcublacklistcard.db"
+#define GUNINFO_PATH  "/usr/local/sanway/dbTest/tcuguninfo.db"
+#define CODE_PATH "/usr/local/sanway/dbTest/tcucode.db"
+
+#define CACHE_PATH "/usr/local/sanway/dbTest/cache"
+#define TRAN_CACHE_FILE "_tcuaccount.db"
+#define ERROR_CACHE_FILE "_tcuerror.db"
+#define LEN_SER    32
+
+typedef struct dbl_lnk {
+	struct dbl_lnk *prev;
+	struct dbl_lnk *next;
+} DBL_LNK;
+
+typedef enum {
+	TRAN_START = 0x55,  //充电开始，第一次插入
+	TRAN_OFFLINE = 0x66, //充电结束，离线未上传
+	TRAN_TEM = 0x77,  //每次时段结束时保存
+	TRAN_END = 0xaa,  //充电结束，已经上传
+	TRAN_FAIL = 0xFF,  //交易记录无法成功上传到后台
+} TRAN_STATE;  //交易记录上传后台状态
+
+typedef enum {
+	TABLE_NW,  //南网通用交易记录数据库类型
+	TABLE_XJ,  //小桔交易记录数据库类型
+	TABLE_YCT,  //羊城通交易记录(刷卡结算)
+	TABLE_SYC,  //顺义充
+	TABLE_GW_IOT, // 国网开放平台
+} TARNRD_TABLE_TYPE;
+
+typedef struct {
+	DBL_LNK l;
+	unsigned char guntab; //充电接口标识
+	unsigned char flag_finished;
+	unsigned char serialnum[32]; // 交易流水号  17062392244
+	unsigned char starttime[7]; // 开始时间
+	unsigned char endtime[7]; // 结束时间
+	unsigned int charge_duration; //充电持续时间
+	unsigned int start_soc;
+	unsigned int end_soc;
+	unsigned char userId[8];
+	unsigned char cardId[8];
+	unsigned char stop_reason; //充电停止原因
+	unsigned int w_start; // 电量开始示值
+	unsigned int w_end; // 电量停止示值
+	unsigned int w[49]; // 本次充电电能量
+	unsigned int cost_elec; //当前服务费电费  保留小数点2位
+	unsigned int cost_server; //当前服务费  保留小数点2位
+	unsigned char carlogo[17]; //电动汽车唯一标识
+	unsigned char billmode; //充电策略0:充满为止（默认） 1:时间控制充电 2:金额控制充电 3:电量控制充电 4:按 SOC 控制充电
+	unsigned int chargevalue; //充电策略参数时间单位为 1 秒 金额单位为 0.01 元 电量时单位为 0.01kw SOC 单位为%
+	unsigned char startmode; //1 远程充电 0 卡充电
+	unsigned int g_stop_detail; //由于故障发生的停止充电的具体故障编码
+} tran_record_xj; //小桔交易记录
+
+/*本结构为羊城通读卡器未完整消费处理信息结构*/
+typedef struct {
+	unsigned char logic_cardNum[8]; //逻辑卡号
+	unsigned char cardNum[8]; //物理卡号
+	int ticket_trade_count; //票卡交易计数器   未完整交易记录的“票卡消费交易计数”。
+	int trade_money; //交易金额  未完整交易记录的“本次交易的交易金额”
+	int balance; //本次余额  未完整交易记录的“ 本次余额”
+} yct_incomplete_trade;
+
+typedef struct {
+	DBL_LNK l;
+	unsigned char guntab; //充电接口标识
+	unsigned char flag_finished;
+	unsigned char serialnum[16]; // 交易流水号
+	unsigned char starttime[7]; // 开始时间
+	unsigned char endtime[7]; // 结束时间
+	unsigned int charge_duration; //充电持续时间
+	unsigned char payCard[8]; // 支付卡唯一标识号
+	unsigned char userId[8];
+	unsigned char cardId[8];
+	char modelID[8];					//计费模型ID
+	unsigned char stop_reason; //充电停止原因
+	unsigned char billbytm; //  yes=0 no=1  分时计费标志
+	unsigned int w_start[5]; // 电量开始示值 总尖峰平谷
+	unsigned int w_end[5]; // 电量结束示值 总尖峰平谷
+	unsigned int w[5]; // 本次充电电能量 总尖峰平谷
+	unsigned int cost_elec[5]; //电费 保留小数点2位
+	unsigned int cost_server; //当前服务费  保留小数点2位
+	unsigned int cost_Parking; //占位费，保留小数点2位
+	unsigned int rateprice[7]; /*    尖费率
+	 峰费率
+	 平费率
+	 谷费率
+	 服务费单价
+	 停车费单价
+	 预约费单价*/
+
+	unsigned char carlogo[17]; //电动汽车唯一标识
+
+	/*刷卡结算追加 只有当数据库类型为TABLE_YCT时才会操作追加部分*/
+	//begin ycc追加
+	unsigned char flag_card_settled; //0x55 未结算  0xaa已经结算
+	unsigned char TAC[4]; //交易识别码
+	yct_incomplete_trade yct_nosettle_trade; //刷卡未完整交易(未结算)
+	//end ycc 追加
+	
+	// begin syc 顺义充追加
+	unsigned int serverrate[4]; /*服务费消费费率 尖-峰-平-谷*/
+	char order_no[8]; /*订单编号*/
+	unsigned int  cost_class_server[5];//服务费消费金额 总-尖-峰-平-谷
+	unsigned int cost_class_Parking[5]; //占位费消费金额 总-尖-峰-平-谷
+	//end syc
+
+} tran_record; //南网通用交易记录
+
+typedef struct {
+ DBL_LNK l;
+ unsigned char guntab; //充电接口标识
+ unsigned char flag_finished;
+ char preTradeNo[60]; // 2 平台交易流水号
+ char serialnum[60]; // 3 设备交易流水号tradeNo
+ unsigned char starttime[6]; // 开始时间
+ unsigned char endtime[6]; // 结束时间
+ char eleModelId[17]; // 11 计量计费模型编号
+ char serModelId[17]; // 11 服务计费模型编号
+ unsigned int chargeFee[4];      // 6  电费模型
+ unsigned int serviceFee[4];      // 10  服务费费模型
+ unsigned char userId[17];
+ unsigned char cardId[17];
+ unsigned char startType;   // 4 启动方式
+ unsigned char chargeMode;   // 5 充电模式
+ unsigned int limitData;    // 6 限制值
+ unsigned int charge_duration; //充电持续时间
+ unsigned int start_soc;
+ unsigned int end_soc;
+ unsigned int w_start; // 电量开始示值
+ unsigned int w_end; // 电量停止示值
+ unsigned int w[5]; // 本次充电电能量
+ unsigned int cost_elec[5]; //当前服务费电费  保留小数点2位
+ unsigned int cost_server[5]; //当前服务费  保留小数点2位
+ unsigned char carlogo[17]; //电动汽车唯一标识
+ unsigned char stop_reason; //充电停止原因
+ unsigned int g_stop_detail; //由于故障发生的停止充电的具体故障编码
+ char shipName[40];//船舶名称 shipName string <=20 字符，没有填 0
+ char shipNumber[40];//船舶识别号 shipNumber string <=20 字符，没有填 0
+} tran_record_iot; //国网开放平台
+
+typedef struct {
+	DBL_LNK l;
+	char guntab; //枪编号
+	char time[7]; //事件时间
+	char type; //故障类型
+} err_record; //故障记录
+
+//typedef struct
+//{
+//	char  settag1; //系统设置1完成，由UI设置为1，主控程序处理后置0
+//	char  bittag1;  //每一位标识一个参数设置，由UI设置为1，主控程序处理后置0
+//	char  p1[8];  //设备编号
+//
+//	char  settag2; //系统设置2完成，由UI设置为1，主控程序处理后置0
+//	short  bittag2;  //每一位标识一个参数设置，由UI设置为1，主控程序处理后置0
+//	char  p2[64];  //APN
+//	unsigned  char  p3[4];  //远程IP1
+//	unsigned int	 p4; //远程端口1
+//	unsigned  char  p5[4];  //远程IP2
+//	unsigned int	 p6; //远程端口2
+//	unsigned  char  p7[4];  //网口1 IP
+//	unsigned  char  p8[4];  //网口 1 子网掩码
+//	unsigned  char  p9[4];  //网口1 网关
+//	unsigned  char  p10[4];  //网口2 IP
+//	unsigned  char  p11[4];  //网口 2 子网掩码
+//	unsigned  char  p12[4];  //网口2 网关
+//
+//	char  settag3; //系统设置3完成，由UI设置为1，主控程序处理后置0
+//	float  p13[11];//额定电压，过压阀值，欠压阀值，过压恢复阀值，欠压恢复阀值，
+//				   //额定电流，过流阀值，欠流阀值，过流恢复阀值，欠流:恢复阀值，持续时间
+//
+//}sysset_cmd; //系统设置
+//
+//
+//typedef struct
+//{
+//	short time;  //起始时间
+//    char tag;    //时段标志, 1：尖时段 2：峰时段 3：平时段 4：谷时段
+//}timeseg;
+//
+//typedef struct{
+//	DBL_LNK l;
+//	char guntab; //充电接口标识
+//	char modelID[8] ;//计费模型ID
+//	char starttime[7];// 开始时间
+//	char endtime[7]; // 结束时间
+//	short opstate;   //执行状态
+//	short metertype;   //计量类型
+//	char num;				//时段数 0-12
+//	timeseg  time[12];  //尖时段起始时间
+//						//峰时段起始时间
+//						//平时段起始时间
+//						//谷时段起始时间
+//
+//	int  rateprice[7];  //尖时段电价
+//						//峰时段电价
+//						//平时段电价
+//	   				    //谷时段电价
+//					    //服务费单价
+//					    //停车费单价
+//					    //预约费单价
+//} charg_model;//计费模型
+
+
+//typedef struct{
+// short    time;        //起始时间
+// char    tag;         //时段标志, 1：尖时段 2：峰时段 3：平时段 4：谷时段
+//}timeseg;
+//typedef struct{
+// char    guntab;      //充电接口标识
+// char    modelID[8];     //计费模型ID
+// char    starttime[7];    //开始时间
+// char    endtime[7];     //结束时间
+// short    opstate;        //执行状态
+// short    metertype;       //计量类型
+// char    num;            //时段数 0-12
+// timeseg    time[12];         /*时段起始时间和费率号*/
+//
+// int     rateprice[7];  /*尖费率
+//                        峰费率
+//                        平费率
+//                        谷费率
+//              			服务费单价
+//              			停车费单价
+//              			预约费单价*/
+// int serverrate[4]; /*顺义充 服务费J-F-P-G*/
+//}charg_model;
+
+typedef struct {
+	unsigned char card_id[8]; //管理卡卡号
+	char card_type; //A卡=0x0A, B卡=0x0B
+	char card_order; //A卡(order = 1,2), B卡(order = 3,4,5)表示A1，A2，B2，B3，B4
+} admin_card; //管理卡
+
+typedef struct {
+	int db_tran_type;
+	int db_err_type;
+	int db_card_type;
+} db_register;
+
+typedef struct {
+	char cardNum[8]; //卡号
+	char state; // 1-挂失 2-解挂
+} blacklist_card; //黑名单
+
+typedef struct {
+	unsigned char gunno; //自动生成序号，也是逻辑枪号
+	unsigned char can_port; // can端口号 0,1
+	unsigned char frame_gunno;    //控制器在can帧中的枪号
+	unsigned char cha_addr; // 控制器can地址 默认0xf6
+	unsigned char mt_port; //电表（485)端口号
+	unsigned char phase_num; //1单相表  3三相表
+	unsigned char meteraddr[6];
+	unsigned int ct;//互感器变比
+} Gun_Info;//充电枪信息
+
+#define CONTEXT_LEN 128
+typedef struct{
+	char context[CONTEXT_LEN];//信息描述
+	unsigned int sw_code;//晟伟编码
+	unsigned int xj_code;//小桔编码
+}Display_Code;//故障代码/停止原因显示对应表
+
+typedef struct{
+	unsigned int power_rate[48];//精确度0.0001 数据库读写data均为无符号整型 由于实际费率real_rate为浮点型 data=real_rate*10000   real_rate=data/10000
+	unsigned int service_rate[48];
+}xj_price_model;
+
+//数据库注册，标注各表的类型 0成功 1失败
+int protocol_database_register(db_register* data);
+
+//充电记录更新、查询
+/*precord是指向tran_record的指针，成功返回ERROR_OK*/
+int protocol_updateCD(void *precord);
+
+/*
+ * 删除交易记录
+ *  成功：返回0   失败：返回非0负值
+ * */
+int protocol_deleteCD(void *precord);
+
+/*precord是指向tran_record的数组，
+ *  数组大小为tr_num*tran_record，
+ *  成功：返回实际查询的条数 失败：返回非0负值*/
+int protocol_queryCD(void *precord, int tr_num);
+
+/*获取离线交易记录，
+ * precord 单个结构体的指针
+ * index 要查询的第几条离线记录，此值大于等于1
+ * 返回值：0成功
+ *
+ * */
+int protocol_get_offlineCD_byIndex(void *precord, int index);
+
+/*
+ * 获取离线交易记录，
+ * precord 单个结构体的指针
+ * 返回值：0成功
+ * */
+int protocol_get_offlineCD(void *precord);
+
+/*
+ *通过现有的交易流水号获取交易记录信息
+ * precord 单个结构体的指针,且交易流水号不为空
+ * 返回值：0成功
+ * */
+int protocol_getCD_bySerialnum(void *precord);
+
+/*
+ * 根据卡号获取未完整交易记录
+ * cardNum为调用者填充的卡号, precord为动态库查询成功时填充未完整交易记录
+ * 返回值：0查询成功，其他值：查询不到
+ * */
+int protocol_get_offlineCD_byCardnum(unsigned char cardNum[8], void *precord);
+
+/*=====================================*/
+
+//故障记录更新、查询
+/*err是指向err_record的指针，成功返回ERROR_OK*/
+int protocol_updateERR(err_record* err);
+/*err是指向err_record的数组，数组大小为err_record*err_num,err_num是要查询的条数，成功返回实际查询的数量*/
+int protocol_queryERR(err_record *err, int err_num);
+
+////系统设置更新、查询
+//int protocol_updateSYSCONF(sysset_cmd* sys);//sys是指向sysset_cmd的指针，成功返回ERROR_OK
+//int protocol_querySYSCONF(sysset_cmd* sys);//sys是指向sysset_cmd的指针，成功返回ERROR_OK
+//
+////计费模型更新、查询
+//int protocol_updatePM(charg_model* mode);//mode是指向charg_model的指针，成功返回ERROR_OK
+//int protocol_queryPM(charg_model* mode);//mode是指向charg_model的指针，成功返回ERROR_OK
+
+//管理卡更新、查询
+int protocol_updateCard(admin_card* card, char operation); //card是指向admin_card的指针,operation=1表示插入，operation=2表示删除，成功返回ERROR_OK
+int protocol_queryCard(admin_card* card); //card是admin的数组，大小为5个admin_card大小,成功返回ERROR_OK
+
+//黑名单更新，查询
+int protocol_update_blacklistCard(blacklist_card* card); //黑名单卡更新   成功返回ERROR_OK
+int protocol_blacklistCard_isExist(char cardNum[8]); //卡号是否存在于黑名单中 0不存在  1存在
+
+//充电枪配置 成功返回ERROR_OK
+int protocol_update_GunInfo(Gun_Info* gun_info); //更新、插入充电枪信息
+int protocol_get_GunInfo(unsigned char gunno, Gun_Info* gun_info); //获取充电枪信息, gun_info由调用者传递,数据库填充
+int protocol_delete_GunInfo(unsigned char gunno); //删除充电枪信息
+
+//故障代码和停止原因代码   swcode是要查询的晟伟代码， pcode是要返回查询的具体信息  成功返回ERROR_OK
+int protocol_get_YxCode(unsigned int swcode, Display_Code* pcode);
+int protocol_get_StopReasonCode(unsigned int swcode, Display_Code* pcode);
+
+//成功更新返回ERROR_OK  更新依据为sw_code
+int protocol_update_YxCode(Display_Code* pcode);
+int protocol_update_StopReasonCode(Display_Code* pcode);
+
+int protocol_delete_YxCode(unsigned int swcode);
+int protocol_delete_StopReasonCode(unsigned int swcode);
+
+
+//成功更新返回ERROR_OK  model指向price_model的结构对象
+int protocol_get_PriceModel(void* model);
+int protocol_update_PriceModel(void* model);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif

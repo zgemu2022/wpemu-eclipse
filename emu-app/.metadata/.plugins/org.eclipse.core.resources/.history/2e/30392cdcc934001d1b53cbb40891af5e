@@ -1,0 +1,41 @@
+*
+ * outsomething.cpp
+ *
+ *  Created on: 2021-10-22
+ *      Author: root
+ */
+
+#include "outsomething.h"
+#include "program.h"
+#include <stdlib.h>
+#include <stdio.h>
+#include <fcntl.h>
+  #include <dlfcn.h>
+//#include "config-cysr.h"
+input_data2  _callbak_ui_fun=NULL;
+void resetpara(u8 type,void *para)
+{
+	return ;
+	switch(type)
+	{
+	case 1:
+	{
+		setnetpara(para);
+//		sprintf(pconfig->server_ip, "%02d%02d%02d%02d",
+//							tm_now.Year - 2000, tm_now.Month, tm_now.Day);
+//		sprintf(pconfig->server_ip,"%d.%d.%d.%d",p->server_ip[0],p->server_ip[1],p->server_ip[2],p->server_ip[3]);
+//		pconfig->server_port=p->server_port;
+		system("reboot");
+	}
+		break;
+	case 2:
+		system("reboot");
+		break;
+	default:
+		break;
+
+	}
+	return ;
+}
+
+

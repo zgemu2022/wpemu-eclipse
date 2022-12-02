@@ -1,0 +1,29 @@
+2022-09-15 15:37:36,730 [INFO] Activator:170 - 
+
+
+2022-09-15 15:37:36,736 [INFO] Activator:171 - !SESSION log4j initialized
+2022-09-15 15:41:31,572 [INFO] LogOutputStream:76 - [STDOUT_REDIRECT] NM parsing issue: line doesn't match pattern:          U abort@@GLIBC_2.4
+2022-09-15 15:41:31,582 [INFO] LogOutputStream:76 - [STDOUT_REDIRECT] NM parsing issue: line doesn't match pattern:          U __aeabi_unwind_cpp_pr1@@GCC_3.5
+2022-09-15 15:41:31,583 [INFO] LogOutputStream:76 - [STDOUT_REDIRECT] NM parsing issue: line doesn't match pattern:          U atoi@@GLIBC_2.4
+2022-09-15 15:41:31,584 [INFO] LogOutputStream:76 - [STDOUT_REDIRECT] NM parsing issue: line doesn't match pattern:          U closedir@@GLIBC_2.4
+2022-09-15 15:41:31,585 [INFO] LogOutputStream:76 - [STDOUT_REDIRECT] NM parsing issue: line doesn't match pattern:          U fflush@@GLIBC_2.4
+2022-09-15 15:41:31,585 [INFO] LogOutputStream:76 - [STDOUT_REDIRECT] NM parsing issue: line doesn't match pattern:          U fopen@@GLIBC_2.4
+2022-09-15 15:41:31,586 [INFO] LogOutputStream:76 - [STDOUT_REDIRECT] NM parsing issue: line doesn't match pattern:          U fprintf@@GLIBC_2.4
+2022-09-15 15:41:31,587 [INFO] LogOutputStream:76 - [STDOUT_REDIRECT] NM parsing issue: line doesn't match pattern:          U free@@GLIBC_2.4
+2022-09-15 15:41:31,588 [INFO] LogOutputStream:76 - [STDOUT_REDIRECT] NM parsing issue: line doesn't match pattern:          U __libc_start_main@@GLIBC_2.4
+2022-09-15 15:41:31,603 [INFO] LogOutputStream:76 - [STDOUT_REDIRECT] NM parsing issue: line doesn't match pattern:          U localtime@@GLIBC_2.4
+2022-09-15 15:41:31,604 [INFO] LogOutputStream:76 - [STDOUT_REDIRECT] NM parsing issue: line doesn't match pattern:          U memcpy@@GLIBC_2.4
+2022-09-15 15:41:31,610 [INFO] LogOutputStream:76 - [STDOUT_REDIRECT] NM parsing issue: line doesn't match pattern:          U memset@@GLIBC_2.4
+2022-09-15 15:41:31,611 [INFO] LogOutputStream:76 - [STDOUT_REDIRECT] NM parsing issue: line doesn't match pattern:          U mkdir@@GLIBC_2.4
+2022-09-15 15:41:31,612 [INFO] LogOutputStream:76 - [STDOUT_REDIRECT] NM parsing issue: line doesn't match pattern:          U opendir@@GLIBC_2.4
+2022-09-15 15:41:31,612 [INFO] LogOutputStream:76 - [STDOUT_REDIRECT] NM parsing issue: line doesn't match pattern:          U printf@@GLIBC_2.4
+2022-09-15 15:41:31,613 [INFO] LogOutputStream:76 - [STDOUT_REDIRECT] NM parsing issue: line doesn't match pattern:          U puts@@GLIBC_2.4
+2022-09-15 15:41:31,614 [INFO] LogOutputStream:76 - [STDOUT_REDIRECT] NM parsing issue: line doesn't match pattern:          U readdir@@GLIBC_2.4
+2022-09-15 15:41:31,615 [INFO] LogOutputStream:76 - [STDOUT_REDIRECT] NM parsing issue: line doesn't match pattern:          U remove@@GLIBC_2.4
+2022-09-15 15:41:31,616 [INFO] LogOutputStream:76 - [STDOUT_REDIRECT] NM parsing issue: line doesn't match pattern:          U sprintf@@GLIBC_2.4
+2022-09-15 15:41:31,617 [INFO] LogOutputStream:76 - [STDOUT_REDIRECT] NM parsing issue: line doesn't match pattern:          U strcmp@@GLIBC_2.4
+2022-09-15 15:41:31,617 [INFO] LogOutputStream:76 - [STDOUT_REDIRECT] NM parsing issue: line doesn't match pattern:          U strcpy@@GLIBC_2.4
+2022-09-15 15:41:31,618 [INFO] LogOutputStream:76 - [STDOUT_REDIRECT] NM parsing issue: line doesn't match pattern:          U strlen@@GLIBC_2.4
+2022-09-15 15:41:31,619 [INFO] LogOutputStream:76 - [STDOUT_REDIRECT] NM parsing issue: line doesn't match pattern:          U strncmp@@GLIBC_2.4
+2022-09-15 15:41:31,633 [INFO] LogOutputStream:76 - [STDOUT_REDIRECT] NM parsing issue: line doesn't match pattern:          U strstr@@GLIBC_2.4
+2022-09-15 15:41:31,633 [INFO] LogOutputStream:76 - [STDOUT_REDIRECT] NM parsing issue: line doesn't match pattern:          U time@@GLIBC_2.4

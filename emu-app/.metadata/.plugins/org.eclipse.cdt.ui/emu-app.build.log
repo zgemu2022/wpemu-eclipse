@@ -1,0 +1,12 @@
+15:43:00 **** Incremental Build of configuration Debug for project emu-app ****
+make all 
+Building file: ../src/main_pro/TaskMain.cpp
+Invoking: Cross G++ Compiler
+arm-arago-linux-gnueabi-g++ -I"/home/cz/STM32CubeIDE/workspace_1.6.0/workspace1/formvm14/emu-app (复件)/src/common" -I"/home/cz/STM32CubeIDE/workspace_1.6.0/workspace1/formvm14/emu-app (复件)/src/config_firm" -I"/home/cz/STM32CubeIDE/workspace_1.6.0/workspace1/formvm14/emu-app (复件)/src/include" -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/main_pro/TaskMain.d" -MT"src/main_pro/TaskMain.o" -o "src/main_pro/TaskMain.o" "../src/main_pro/TaskMain.cpp"
+/bin/sh: 1: arm-arago-linux-gnueabi-g++: not found
+make: *** [src/main_pro/TaskMain.o] Error 127
+src/main_pro/subdir.mk:21: recipe for target 'src/main_pro/TaskMain.o' failed
+"make all" terminated with exit code 2. Build might be incomplete.
+
+15:43:01 Build Failed. 2 errors, 0 warnings. (took 1s.553ms)
+
